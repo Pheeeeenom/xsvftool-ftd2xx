@@ -382,8 +382,19 @@ int libxsvf_svf(struct libxsvf_host *h)
 				number = number*10 + (*p - '0');
 				p++;
 			}
+			// Handle decimal point
+			if (*p == '.') {
+				p++;  // Skip the decimal point
+				while (*p >= '0' && *p <= '9') {
+					p++;  // Skip decimal digits
+				}
+			}
 			if(*p == 'E' || *p == 'e') {
 				p++;
+				if (*p == '+') {
+					p++;  // Skip the plus sign in scientific notation
+				}
+				
 				while (*p >= '0' && *p <= '9') {
 					exp = exp*10 + (*p - '0');
 					p++;
@@ -393,6 +404,9 @@ int libxsvf_svf(struct libxsvf_host *h)
 			}
 			while (*p == ' ') {
 				p++;
+			}
+			if (!strtokencmp(p, "HZ")) {
+				p += strtokenskip(p);  // Skip the HZ suffix
 			}
 			p += strtokenskip(p);
 			if (LIBXSVF_HOST_SET_FREQUENCY(number) < 0) {
